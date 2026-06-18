@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Year Progress</title>
+<meta name="description" content="How much of the year is gone.">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏳</text></svg>">
+<style>
+  :root {
+    --bg: #0d0e12;
+    --fg: #f2f3f7;
+    --muted: #8a8f9c;
+    --track: #1d1f27;
+    --fill: #6ce0a6;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f7f8fa;
+      --fg: #14161c;
+      --muted: #6b7280;
+      --track: #e4e6eb;
+      --fill: #18a058;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    -webkit-font-smoothing: antialiased;
+  }
+  main {
+    width: 100%;
+    max-width: 640px;
+  }
+  .year {
+    font-size: clamp(0.8rem, 3vw, 1rem);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+  }
+  .pct {
+    font-size: clamp(3.5rem, 18vw, 8rem);
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 1.75rem;
+  }
+  .pct span { color: var(--muted); font-weight: 400; }
+  .track {
+    width: 100%;
+    height: 14px;
+    background: var(--track);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .fill {
+    height: 100%;
+    width: 0;
+    background: var(--fill);
+    border-radius: 999px;
+    transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .meta {
+    margin-top: 1.25rem;
+    font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="year" id="year">— </div>
+  <div class="pct"><span id="num">0.000</span><span>%</span></div>
+  <div class="track"><div class="fill" id="fill"></div></div>
+  <div class="meta">
+    <span id="elapsed">—</span>
+    <span id="remaining">—</span>
+  </div>
+</main>
+<script>
+  function update() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const start = new Date(year, 0, 1);
+    const end = new Date(year + 1, 0, 1);
+    const total = end - start;
+    const elapsed = now - start;
+    const pct = (elapsed / total) * 100;
+
+    const dayMs = 86400000;
+    const dayOfYear = Math.floor(elapsed / dayMs) + 1;
+    const totalDays = Math.round(total / dayMs);
+    const daysLeft = totalDays - dayOfYear;
+
+    document.getElementById("year").textContent = year;
+    document.getElementById("num").textContent = pct.toFixed(3);
+    document.getElementById("fill").style.width = pct + "%";
+    document.getElementById("elapsed").textContent = "day " + dayOfYear + " of " + totalDays;
+    document.getElementById("remaining").textContent = daysLeft + " day" + (daysLeft === 1 ? "" : "s") + " left";
+    document.title = pct.toFixed(1) + "% — Year Progress";
+  }
+  update();
+  setInterval(update, 1000);
+</script>
+</body>
+</html>
